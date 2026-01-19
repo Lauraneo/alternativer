@@ -85,7 +85,7 @@ let overlays = [];
 let projectionActive = false;
 let activeVideo = null;
 
-gltfLoader.load("/models/vintage_radio_(GLTF)/raadhuset4real.gltf", (gltf) => {
+gltfLoader.load("/models/raadhuset4real.gltf", (gltf) => {
   const model = gltf.scene;
 
   model.scale.set(5, 5, 5);
