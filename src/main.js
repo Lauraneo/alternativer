@@ -4,6 +4,17 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 
 // -------------------------------------
+// DOM ELEMENTER (VIGTIGT: først)
+// -------------------------------------
+const loaderEl = document.getElementById("loader");
+const startScreen = document.getElementById("start-screen");
+const startBtn = document.getElementById("start-btn");
+const controls = document.getElementById("controls");
+
+startBtn.disabled = true;
+startBtn.style.opacity = 0.5;
+
+// -------------------------------------
 // SCENE
 // -------------------------------------
 const scene = new THREE.Scene();
@@ -15,7 +26,7 @@ const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000,
+  1000
 );
 camera.position.set(-20, 30, 100);
 
@@ -30,6 +41,23 @@ renderer.toneMappingExposure = 0.6;
 document.body.appendChild(renderer.domElement);
 
 // -------------------------------------
+// LOAD STATUS
+// -------------------------------------
+let modelLoaded = false;
+let hdriLoaded = false;
+
+// -------------------------------------
+// READY CHECK
+// -------------------------------------
+function checkIfReady() {
+  if (modelLoaded && hdriLoaded) {
+    loaderEl.style.display = "none";
+    startBtn.disabled = false;
+    startBtn.style.opacity = 1;
+  }
+}
+
+// -------------------------------------
 // HDRI
 // -------------------------------------
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
@@ -39,8 +67,12 @@ new HDRLoader().load("/hdri/shanghai_bund_4k.hdr", (texture) => {
   const envMap = pmremGenerator.fromEquirectangular(texture).texture;
   scene.environment = envMap;
   scene.background = envMap;
+
   texture.dispose();
   pmremGenerator.dispose();
+
+  hdriLoaded = true;
+  checkIfReady();
 });
 
 // -------------------------------------
@@ -52,19 +84,15 @@ dirLight.position.set(5, 5, 10);
 scene.add(dirLight);
 
 // -------------------------------------
-// VIDEO (starter slukket)
+// VIDEO
 // -------------------------------------
 const video = document.createElement("video");
-video.src = "/videos/projection1.mp4"; // 👈 preload EN video
 video.loop = true;
 video.muted = true;
 video.playsInline = true;
-video.autoplay = true;
-video.play();
 
 const videoTexture = new THREE.VideoTexture(video);
 videoTexture.colorSpace = THREE.SRGBColorSpace;
-videoTexture.needsUpdate = true;
 
 const projectionMaterial = new THREE.MeshBasicMaterial({
   map: videoTexture,
@@ -95,7 +123,6 @@ gltfLoader.load("/models/raadhuset4real.gltf", (gltf) => {
   scene.add(model);
   camera.lookAt(0, 5, -100);
 
-  // 👇 OVERLAY LÆGGES OVENPÅ – MEN SKJULT
   model.traverse((child) => {
     if (!child.isMesh) return;
 
@@ -114,47 +141,43 @@ gltfLoader.load("/models/raadhuset4real.gltf", (gltf) => {
       overlays.push(overlay);
     }
   });
+
+  modelLoaded = true;
+  checkIfReady();
 });
 
 // -------------------------------------
 // STARTSKÆRM
 // -------------------------------------
-const startScreen = document.getElementById("start-screen");
-const startBtn = document.getElementById("start-btn");
-const controls = document.getElementById("controls");
-
 startBtn.addEventListener("click", () => {
   startScreen.style.display = "none";
   controls.style.display = "flex";
 });
 
 // -------------------------------------
-// VIDEO-KNAPPPER
+// VIDEO-KNAPPPER (toggle)
 // -------------------------------------
 document.querySelectorAll("#controls button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const file = btn.dataset.video;
 
-    // 👇 Hvis samme video klikkes igen → SLUK
+    // Hvis samme video → sluk
     if (projectionActive && activeVideo === file) {
       video.pause();
       video.currentTime = 0;
-
       overlays.forEach((o) => (o.visible = false));
-
       projectionActive = false;
       activeVideo = null;
       return;
     }
 
-    // 👇 Ellers → SKIFT / TÆND video
+    // Ellers → tænd / skift
     video.pause();
     video.src = `/videos/${file}`;
     video.load();
     video.play();
 
     overlays.forEach((o) => (o.visible = true));
-
     projectionActive = true;
     activeVideo = file;
   });

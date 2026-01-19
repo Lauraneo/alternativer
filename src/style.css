@@ -2,8 +2,19 @@ body {
   margin: 0;
   overflow: hidden;
 }
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #3b006a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 1.5rem;
+}
 
-/* STARTSKÆRM */
 #start-screen {
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   position: fixed;
@@ -18,6 +29,22 @@ body {
   z-index: 10;
   text-align: center;
 }
+.start-bg-icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 80vmin;
+  height: 80vmin;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#start-screen h1,
+#start-screen p,
+#start-screen button {
+  position: relative;
+  z-index: 1;
+}
 
 #start-btn {
   font-family: "IBM Plex Sans", system-ui, sans-serif;
@@ -29,6 +56,13 @@ body {
   color: white;
   font-size: 1rem;
   cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+#start-btn:hover {
+  transform: translateY(-2px);
+  background: #9500ff81;
 }
 
 #controls {
@@ -37,16 +71,16 @@ body {
   left: 50%;
   transform: translateX(-50%);
   display: none;
-  gap: 0.75rem;
+  gap: 2rem;
   z-index: 5;
 }
 
 #controls button {
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 50px;
   border-radius: 10px;
-  border: none;
-  background: #9600ff; /* lilla fra dit design */
+  border: #9600ff 2px solid;
+  background: #3b006a;
   color: white;
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   font-weight: 600;
@@ -58,5 +92,5 @@ body {
 
 #controls button:hover {
   transform: translateY(-2px);
-  background: #7f55ff;
+  background: #9500ff81;
 }
